@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speech Pause Pattern Analyzer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-content">
+      <div class="logo-area">
+        <span class="badge">Project 04</span>
+        <h1>Speech Pause Pattern Analyzer</h1>
+      </div>
+      <p class="tagline">Objective speech pattern analysis: filler words, repetition metrics, speech pace, and observable acoustic pauses.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Mandatory Educational & Ethical Disclaimer -->
+    <aside class="notice-banner" role="note">
+      <span class="notice-icon">&#9432;</span>
+      <div>
+        <strong>Educational Speech Tool:</strong> This application measures observable speaking metrics for public speaking practice and educational study. It does not diagnose speech disorders, stuttering, or clinical conditions. Natural pauses and filler words are normal characteristics of spontaneous human speech.
+      </div>
+    </aside>
+
+    <!-- Browser Compatibility Warning -->
+    <div id="compatBanner" class="alert-banner hidden" role="alert">
+      <span class="alert-icon">&#9888;</span>
+      <div id="compatMessage"></div>
+    </div>
+
+    <!-- Speech Control & Timer Card -->
+    <section class="card control-card">
+      <div class="card-header">
+        <h2 class="section-title">Live Audio Capture &amp; Speaking Controls</h2>
+        <div class="status-indicator">
+          <span class="status-dot status-idle" id="statusDot"></span>
+          <span class="status-text" id="statusText">Status: Ready</span>
+        </div>
+      </div>
+
+      <div class="metrics-bar">
+        <div class="metric-box">
+          <span class="metric-label">Speaking Duration</span>
+          <span class="metric-val" id="durationDisplay">00:00</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">Word Count</span>
+          <span class="metric-val" id="wordCountDisplay">0</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">Speaking Pace</span>
+          <span class="metric-val" id="wpmDisplay">0 WPM</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">Observable Pauses</span>
+          <span class="metric-val" id="pauseCountDisplay">0</span>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button id="startRecBtn" class="btn btn-record">
+          <span class="btn-icon">&#127908;</span> Start Recording
+        </button>
+        <button id="stopRecBtn" class="btn btn-stop" disabled>
+          <span class="btn-icon">&#9209;</span> Stop Recording
+        </button>
+        <button id="analyzeBtn" class="btn btn-primary">
+          <span class="btn-icon">&#128202;</span> Analyze Speech Patterns
+        </button>
+        <button id="sampleSpeechBtn" class="btn btn-secondary">
+          <span class="btn-icon">&#128196;</span> Load Sample Speech
+        </button>
+        <button id="clearBtn" class="btn btn-outline">
+          <span class="btn-icon">&#10006;</span> Clear
+        </button>
+      </div>
+
+      <div id="statusMessage" class="status-message hidden" role="alert"></div>
+    </section>
+
+    <!-- Configurable Filler Words Card -->
+    <section class="card config-card">
+      <div class="card-header">
+        <h3 class="section-title">Configured Filler Words</h3>
+        <span class="config-hint">Modify or add custom filler phrases to detect</span>
+      </div>
+      <div class="filler-input-row">
+        <input type="text" id="newFillerInput" placeholder="Add filler word (e.g. 'you know', 'actually')..." />
+        <button id="addFillerBtn" class="btn btn-small btn-secondary">+ Add Word</button>
+      </div>
+      <div id="fillerTagsContainer" class="filler-tags-container">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- Transcript & Pattern Analysis Grid -->
+    <div class="two-column-layout">
+      <!-- Left Column: Transcript Area -->
+      <section class="card column-card">
+        <div class="card-header">
+          <h3 class="section-title">Speech Transcript</h3>
+          <div class="header-actions">
+            <button id="copyTranscriptBtn" class="btn btn-small btn-secondary">&#128203; Copy</button>
+          </div>
+        </div>
+        <div class="textarea-wrapper">
+          <textarea 
+            id="transcriptInput" 
+            placeholder="Live speech will transcribe here as you speak. You can also paste transcript text manually at any time..." 
+            rows="12"
+          ></textarea>
+        </div>
+      </section>
+
+      <!-- Right Column: Speech Pattern Summary -->
+      <section class="card column-card">
+        <div class="card-header">
+          <h3 class="section-title">Speech Pattern Summary</h3>
+        </div>
+
+        <div id="analysisSummaryContainer" class="summary-container">
+          <div class="empty-summary" id="emptySummaryMsg">
+            <div class="empty-icon">&#128483;</div>
+            <p>No speech analyzed yet.</p>
+            <small>Record audio, paste text, or load the sample speech to analyze filler words, pacing, and pauses.</small>
+          </div>
+
+          <div id="resultsContent" class="results-content hidden">
+            <!-- Summary Stats -->
+            <div class="stats-cards-grid">
+              <div class="stat-card">
+                <span class="stat-lbl">Filler Count</span>
+                <span class="stat-num" id="totalFillerCount">0</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-lbl">Filler Ratio</span>
+                <span class="stat-num" id="fillerRatioVal">0%</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-lbl">Repeated Words</span>
+                <span class="stat-num" id="repeatedWordCount">0</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-lbl">Pause Timing</span>
+                <span class="stat-num" id="pauseTimeVal">0.0s</span>
+              </div>
+            </div>
+
+            <!-- Filler Words Breakdown -->
+            <div class="sub-panel">
+              <h4 class="sub-panel-title">Detected Filler Words Breakdown</h4>
+              <div id="fillerBreakdownList" class="breakdown-list"></div>
+            </div>
+
+            <!-- Repeated Words Breakdown -->
+            <div class="sub-panel">
+              <h4 class="sub-panel-title">Consecutive Repeated Words</h4>
+              <div id="repeatedWordsList" class="breakdown-list"></div>
+            </div>
+
+            <!-- Timing and Pause Log -->
+            <div class="sub-panel">
+              <h4 class="sub-panel-title">Observable Pause Log (Recorded Sessions)</h4>
+              <div id="pauseLog" class="pause-log"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <div class="container footer-content">
+      <p>Text &amp; Speech Analysis Laboratory &bull; Project 04: Speech Pause Pattern Analyzer</p>
+      <p class="footer-meta">Acoustic pause delta tracking &bull; Whole-word boundary regex &bull; Client-side vanilla JS</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

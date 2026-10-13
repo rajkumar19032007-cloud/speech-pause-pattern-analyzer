@@ -1,0 +1,19 @@
+{
+  "name": "04-speech-pause-pattern-analyzer",
+  "version": "1.0.0",
+  "description": "Educational speech pause and filler pattern analyzer using Web Speech API and whole-word regex",
+  "main": "script.js",
+  "scripts": {
+    "test": "node -e \"const { analyzeSpeechPatterns, SAMPLE_SPEECH, configuredFillers } = require('./script.js'); const res = analyzeSpeechPatterns(SAMPLE_SPEECH, configuredFillers, [], 30); if (res.totalFillers < 5) throw new Error('Expected >= 5 fillers'); console.log('All tests passed!');\"",
+    "dev": "node -e \"const http = require('http'), fs = require('fs'), path = require('path'); const port = 3004; http.createServer((req, res) => { const file = req.url === '/' ? 'index.html' : req.url.slice(1).split('?')[0]; const filePath = path.join(__dirname, file); if (!fs.existsSync(filePath)) { res.writeHead(404); return res.end('Not Found'); } const ext = path.extname(filePath); const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript' }; res.writeHead(200, { 'Content-Type': types[ext] || 'text/plain' }); fs.createReadStream(filePath).pipe(res); }).listen(port, () => console.log('Project 4 running at http://localhost:' + port));\""
+  },
+  "keywords": [
+    "speech-analysis",
+    "pause-tracking",
+    "filler-words",
+    "speech-pace",
+    "web-speech-api"
+  ],
+  "author": "Computer Science Engineering Student",
+  "license": "MIT"
+}
